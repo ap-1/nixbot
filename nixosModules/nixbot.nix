@@ -158,6 +158,9 @@ let
         warn_only = step.warnOnly;
         on_reuse = step.onReuse;
       }) cfg.postBuildSteps;
+      build_finished_steps = map (step: {
+        inherit (step) name environment command;
+      }) cfg.buildFinishedSteps;
       uploaders = map (u: {
         inherit (u) name environment command;
         paths_via = u.pathsVia;
@@ -945,6 +948,42 @@ in
                 Also run for outputs a commit reuses instead of building,
                 such as another build of the same tree or outputs already
                 in the store.
+              '';
+            };
+          };
+        }
+      );
+    };
+
+    buildFinishedSteps = lib.mkOption {
+      default = [ ];
+      description = ''
+        Steps to execute once per evaluated build, with the build's
+        attributes as JSON on stdin.
+      '';
+      type = lib.types.listOf (
+        lib.types.submodule {
+          options = {
+            name = lib.mkOption {
+              type = lib.types.str;
+              description = "Name of the step, shown in logs.";
+            };
+
+            environment = lib.mkOption {
+              type = lib.types.attrsOf lib.types.anything;
+              default = { };
+              description = ''
+                Extra environment variables, interpolated as in
+                {option}`postBuildSteps`. Available properties: project,
+                branch, revision, pr_number, default_branch, status,
+                build_url.
+              '';
+            };
+
+            command = lib.mkOption {
+              type = lib.types.listOf lib.types.anything;
+              description = ''
+                Command to execute, passed to execve verbatim (no shell).
               '';
             };
           };
