@@ -249,6 +249,7 @@ async def _settle_aborted(  # noqa: PLR0913
         event, build, BuildResult(status, build.status_generation, [])
     )
     await o.finish_linked(
+        event,
         build,
         BuildResult(status, build.status_generation, []),
         worktree_path=worktree_path,
@@ -633,6 +634,7 @@ async def build_attributes(  # noqa: PLR0913
         ),
     )
     await o.finish_linked(
+        event,
         build,
         BuildResult(status, generation, schedule_result.results),
         worktree_path=worktree_path,
